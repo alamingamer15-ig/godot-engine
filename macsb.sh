@@ -50,7 +50,7 @@ export ANDROID_SDK_ROOT="$ANDROID_HOME"
 
 export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
 
-GODOT_DIR="/workspaces/godot"
+GODOT_DIR="/workspaces/godot-engine"
 OUTPUT_DIR="$GODOT_DIR/bin"
 OUTPUT_APK="$OUTPUT_DIR/android-debug.apk"
 NUGET_DIR="$HOME/MyLocalNugetSource"
@@ -85,7 +85,7 @@ sudo apt-get install -y \
     openjdk-17-jdk \
     unzip \
     wget \
-    dotnet-sdk-8.0
+    dotnet-sdk-10.0
 
 # ==================================================
 # 5. INSTALL ANDROID SDK COMPONENTS
