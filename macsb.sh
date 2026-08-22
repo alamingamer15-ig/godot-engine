@@ -171,6 +171,14 @@ scons \
     generate_android_binaries=yes \
     -j"$(nproc)"
 
+echo
+echo "=== Packaging APK with Gradle ==="
+cd "$GODOT_DIR/platform/android/java"
+chmod +x gradlew
+./gradlew assembleDebug
+cp app/build/outputs/apk/debug/app-debug.apk "$SOURCE_APK"
+cd "$GODOT_DIR"
+
 # ==================================================
 # 11. VERIFY AND COPY FINAL APK
 # ==================================================
