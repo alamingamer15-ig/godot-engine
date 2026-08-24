@@ -30,3 +30,5 @@ export ANDROID_SDK_ROOT="$ANDROID_HOME"
     "build-tools;35.0.1" \
     "ndk;28.1.13356709" \
     "cmake;3.10.2.4988404"
+
+sudo apt-get remove -y 'dotnet-sdk-10.*'
