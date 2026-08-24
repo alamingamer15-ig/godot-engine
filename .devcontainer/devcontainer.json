@@ -1,5 +1,13 @@
 {
-  "name": "Godot Build Environment",
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
-  "onCreateCommand": "chmod +x .devcontainer/Install.sh && sudo bash .devcontainer/Install.sh"
+    "name": "Godot 4.7 Android .NET",
+    "image": "mcr.microsoft.com/devcontainers/universal:1",
+
+    "onCreateCommand": "sudo apt-get update && sudo apt-get install -y python3 python3-pip build-essential pkg-config openjdk-17-jdk git curl wget unzip zip && curl -fL https://builds.dotnet.microsoft.com/dotnet/scripts/v1/dotnet-install.sh -o /tmp/dotnet-install.sh && bash /tmp/dotnet-install.sh --channel 9.0 --install-dir \"$HOME/.dotnet\" && rm -f /tmp/dotnet-install.sh && \"$HOME/.dotnet/dotnet\" --version && \"$HOME/Android/Sdk/cmdline-tools/latest/bin/sdkmanager\" \"platforms;android-35\" \"build-tools;35.0.1\" \"ndk;28.1.13356709\" \"cmake;3.10.2.4988404\"",
+
+    "remoteEnv": {
+        "DOTNET_ROOT": "${containerEnv:HOME}/.dotnet",
+        "PATH": "${containerEnv:HOME}/.dotnet:${containerEnv:PATH}",
+        "ANDROID_HOME": "${containerEnv:HOME}/Android/Sdk",
+        "ANDROID_SDK_ROOT": "${containerEnv:HOME}/Android/Sdk"
+    }
 }
