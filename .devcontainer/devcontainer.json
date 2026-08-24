@@ -1,0 +1,5 @@
+{
+  "name": "Godot Build Environment",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "onCreateCommand": "chmod +x ./Install.sh && sudo ./Install.sh"
+}
