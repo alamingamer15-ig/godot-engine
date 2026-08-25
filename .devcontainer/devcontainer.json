@@ -1,5 +1,5 @@
 {
   "name": "Godot Build Environment",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-  "onCreateCommand": "echo 'Prebuild created'"
+  "onCreateCommand": "set -e\nsudo apt update && sudo apt install openjdk-17-jdk unzip zip python3 python3-pip git build-essential"
 }
