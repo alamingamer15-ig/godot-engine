@@ -1,4 +1,4 @@
 {
-    "image": "mcr.microsoft.com/devcontainers/universal:1",
-    "onCreateCommand": "sudo apt update && sudo apt upgrade"
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+    "onCreateCommand": "apt update"
 }
