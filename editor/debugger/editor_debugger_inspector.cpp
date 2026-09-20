@@ -92,13 +92,7 @@ void EditorDebuggerRemoteObjects::_get_property_list(List<PropertyInfo> *p_list)
 }
 
 void EditorDebuggerRemoteObjects::set_property_field(const StringName &p_property, const Variant &p_value, const String &p_field) {
-	// Ignore the field with arrays and dictionaries, as they are passed whole when edited.
-	Variant::Type type = p_value.get_type();
-	if (type == Variant::ARRAY || type == Variant::DICTIONARY) {
-		_set_impl(p_property, p_value, "");
-	} else {
-		_set_impl(p_property, p_value, p_field);
-	}
+	_set_impl(p_property, p_value, p_field);
 }
 
 String EditorDebuggerRemoteObjects::get_title() {
@@ -450,10 +444,11 @@ void EditorDebuggerInspector::add_stack_variable(const Array &p_array, int p_off
 		h = PROPERTY_HINT_OBJECT_ID;
 		hs = var.type_hint;
 
-		// Makes the call stack select the node in the remote tree. See https://github.com/godotengine/godot/issues/79477
-		if (n == "self") {
-			_object_selected(v);
-		}
+		// Makes the call stack select the node in the remote tree.
+		// FIXME: Disabled until the feedback loop with breakpoints inside getters is fixed. See GH-122339.
+		//if (n == "self") {
+		//	_object_selected(v);
+		//}
 	}
 
 	String type;
