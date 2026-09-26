@@ -12,6 +12,15 @@ env_mono = env_modules.Clone()
 
 mono_configure.configure(env, env_mono)
 
+# Link the Android NativeAOT runtime directly into the native Godot library.
+# NativeAOT provides static archives, so they must be linked at build time.
+if env["platform"] == "android":
+    if env.debug_features and not (env.editor_build and env["store_release"]):
+        naot_runtime = "#modules/mono/thirdparty/libnaot-android.debug-static-debug.a"
+    else:
+        naot_runtime = "#modules/mono/thirdparty/libnaot-android.release-static-release.a"
+    env_mono.Append(LIBS=[env_mono.File(naot_runtime)])
+
 # Add sources
 
 env_mono.add_source_files(env.modules_sources, "*.cpp")
