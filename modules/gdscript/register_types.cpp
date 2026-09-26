@@ -31,6 +31,9 @@
 #include "register_types.h"
 
 #include "gdscript.h"
+#ifdef TOOLS_ENABLED
+#include "gdscript_language_protocol_public.h"
+#endif
 #include "gdscript_cache.h"
 #include "gdscript_parser.h"
 #include "gdscript_resource_format.h"
@@ -137,6 +140,9 @@ static void _editor_init() {
 
 void initialize_gdscript_module(ModuleInitializationLevel p_level) {
 	if (p_level == MODULE_INITIALIZATION_LEVEL_SERVERS) {
+#ifdef TOOLS_ENABLED
+		GDREGISTER_CLASS(GDScriptLanguageAPI);
+#endif
 		GDREGISTER_CLASS(GDScript);
 		GDREGISTER_INTERNAL_CLASS(GDScriptFunctionState);
 
