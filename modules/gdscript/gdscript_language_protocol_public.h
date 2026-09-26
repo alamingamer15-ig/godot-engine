@@ -36,8 +36,8 @@
 #include "core/object/ref_counted.h"
 #include "core/variant/dictionary.h"
 
-class GDScriptLanguageProtocolPublic : public RefCounted {
-	GDCLASS(GDScriptLanguageProtocolPublic, RefCounted);
+class GDScriptLanguageAPI : public RefCounted {
+	GDCLASS(GDScriptLanguageAPI, RefCounted);
 
 protected:
 	static void _bind_methods();
