@@ -141,7 +141,7 @@ static void _editor_init() {
 void initialize_gdscript_module(ModuleInitializationLevel p_level) {
 	if (p_level == MODULE_INITIALIZATION_LEVEL_SERVERS) {
 #ifdef TOOLS_ENABLED
-		GDREGISTER_CLASS(GDScriptLanguageProtocolPublic);
+		GDREGISTER_CLASS(GDScriptLanguageAPI);
 #endif
 		GDREGISTER_CLASS(GDScript);
 		GDREGISTER_INTERNAL_CLASS(GDScriptFunctionState);
