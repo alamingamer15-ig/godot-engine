@@ -111,9 +111,6 @@ def generateBuildTasks(String flavor = "template", String edition = "standard", 
     if (!supportedEditions.contains(edition)) {
         throw new GradleException("Invalid build edition: $edition")
     }
-    if (edition == "mono" && flavor != "template") {
-        throw new GradleException("'mono' edition only supports the 'template' flavor.")
-    }
 
     String capitalizedAndroidDistro = androidDistro.capitalize()
     def buildTasks = []
@@ -234,6 +231,18 @@ def generateBuildTasks(String flavor = "template", String edition = "standard", 
 task generateGodotEditor {
     gradle.startParameter.excludedTaskNames += templateExcludedBuildTask()
     dependsOn = generateBuildTasks("editor", "standard", "android")
+}
+
+/**
+ * Generate the Godot Editor binaries for Android with .NET support.
+ *
+ * The native editor library is built with the .NET module enabled. The Android
+ * application itself is otherwise identical to the standard editor; the .NET
+ * runtime and managed assemblies are staged by the .NET packaging step.
+ */
+task generateGodotMonoEditor {
+    gradle.startParameter.excludedTaskNames += templateExcludedBuildTask()
+    dependsOn = generateBuildTasks("editor", "mono", "android")
 }
 
 /**
