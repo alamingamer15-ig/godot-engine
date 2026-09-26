@@ -38,6 +38,10 @@
 #include "gdscript_utility_functions.h"
 
 #ifdef TOOLS_ENABLED
+#include "gdscript_language_protocol_public.h"
+#endif
+
+#ifdef TOOLS_ENABLED
 #include "editor/gdscript_editor_language.h"
 #include "editor/gdscript_highlighter.h"
 #include "editor/gdscript_translation_parser_plugin.h"
@@ -137,6 +141,9 @@ static void _editor_init() {
 
 void initialize_gdscript_module(ModuleInitializationLevel p_level) {
 	if (p_level == MODULE_INITIALIZATION_LEVEL_SERVERS) {
+#ifdef TOOLS_ENABLED
+		GDREGISTER_CLASS(GDScriptLanguageAPI);
+#endif
 		GDREGISTER_CLASS(GDScript);
 		GDREGISTER_INTERNAL_CLASS(GDScriptFunctionState);
 
