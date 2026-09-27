@@ -7,7 +7,7 @@ def is_unix_like(platform):
 
 
 def module_supports_tools_on(platform):
-    return is_desktop(platform)
+    return platform in ["windows", "macos", "linuxbsd", "android"]
 
 
 def configure(env, env_mono):
