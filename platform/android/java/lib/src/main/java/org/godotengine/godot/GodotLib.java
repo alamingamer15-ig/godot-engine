@@ -188,6 +188,11 @@ public class GodotLib {
 	 * @param p_key Property key
 	 * @return String value of the property
 	 */
+	/**
+	 * Execute a command through the Android bash shell bridge.
+	 */
+	public static native String executeCommand(String command);
+
 	public static native String getGlobal(String p_key);
 
 	/**
