@@ -70,6 +70,8 @@
 #include <android/native_window_jni.h>
 #include <unistd.h>
 
+#include <string>
+
 static JavaClassWrapper *java_class_wrapper = nullptr;
 static OS_Android *os_android = nullptr;
 static AndroidInputHandler *input_handler = nullptr;
@@ -154,6 +156,53 @@ static String rendering_source_to_string(OS::RenderingSource p_source) {
 		default:
 			return "Unknown";
 	}
+}
+
+static std::string execute_command_in_java(JNIEnv *env, const std::string &command) {
+	jclass clazz = env->FindClass("org/godotengine/godot/ShellExecutor");
+	if (!clazz) {
+		if (env->ExceptionCheck()) {
+			env->ExceptionClear();
+		}
+		return "Error: Java class not found";
+	}
+
+	jmethodID method_id = env->GetStaticMethodID(clazz, "execute_command", "(Ljava/lang/String;)Ljava/lang/String;");
+	if (!method_id) {
+		if (env->ExceptionCheck()) {
+			env->ExceptionClear();
+		}
+		env->DeleteLocalRef(clazz);
+		return "Error: Java method not found";
+	}
+
+	jstring jcommand = env->NewStringUTF(command.c_str());
+	if (!jcommand) {
+		env->DeleteLocalRef(clazz);
+		return "Error: unable to create Java command string";
+	}
+
+	jstring jresult = static_cast<jstring>(env->CallStaticObjectMethod(clazz, method_id, jcommand));
+	if (env->ExceptionCheck()) {
+		env->ExceptionClear();
+		env->DeleteLocalRef(jcommand);
+		env->DeleteLocalRef(clazz);
+		return "Error: Java shell execution failed";
+	}
+
+	std::string result;
+	if (jresult) {
+		const char *converted_str = env->GetStringUTFChars(jresult, nullptr);
+		if (converted_str) {
+			result = converted_str;
+			env->ReleaseStringUTFChars(jresult, converted_str);
+		}
+		env->DeleteLocalRef(jresult);
+	}
+
+	env->DeleteLocalRef(jcommand);
+	env->DeleteLocalRef(clazz);
+	return result;
 }
 
 extern "C" {
@@ -512,6 +561,22 @@ JNIEXPORT void JNICALL Java_org_godotengine_godot_GodotLib_focusout(JNIEnv *env,
 	}
 
 	os_android->main_loop_focusout();
+}
+
+JNIEXPORT jstring JNICALL Java_org_godotengine_godot_GodotLib_executeCommand(JNIEnv *env, jclass clazz, jstring p_command) {
+	if (!p_command) {
+		return env->NewStringUTF("Error: command is null");
+	}
+
+	const char *command_utf8 = env->GetStringUTFChars(p_command, nullptr);
+	if (!command_utf8) {
+		return env->NewStringUTF("Error: unable to read command");
+	}
+
+	const std::string result = execute_command_in_java(env, command_utf8);
+	env->ReleaseStringUTFChars(p_command, command_utf8);
+
+	return env->NewStringUTF(result.c_str());
 }
 
 JNIEXPORT jstring JNICALL Java_org_godotengine_godot_GodotLib_getGlobal(JNIEnv *env, jclass clazz, jstring path) {
