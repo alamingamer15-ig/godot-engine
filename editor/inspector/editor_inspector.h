@@ -805,7 +805,7 @@ private:
 	HashSet<StringName> pending;
 
 	void _clear(bool p_hide_plugins = true);
-	Object *object = nullptr;
+	ObjectID edited_object_id;
 	Object *next_object = nullptr;
 
 	//
@@ -946,6 +946,7 @@ public:
 	void edit(Object *p_object);
 	Object *get_edited_object();
 	Object *get_next_edited_object();
+	void cleanup_object();
 
 	void set_keying(bool p_active);
 	void set_read_only(bool p_read_only);
@@ -977,6 +978,9 @@ public:
 
 	void set_scroll_offset(int p_offset);
 	int get_scroll_offset() const;
+
+	void set_scroll_cache(ObjectID p_id, int p_offset);
+	void remove_scroll_cache(ObjectID p_id);
 
 	void set_property_prefix(const String &p_prefix);
 	String get_property_prefix() const;

@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "../../openxr_util.h"
 #include "../../util.h"
 #include "../openxr_extension_wrapper.h"
 #include "openxr_spatial_container_state.h"
@@ -50,6 +49,7 @@ public:
 		RID spatial_container_rid = RID();
 		XrSpatialContainerEXT spatial_container_handle = XR_NULL_HANDLE;
 		XrSpace space_handle = XR_NULL_HANDLE;
+		XrSpatialContainerBoundsModeEXT current_bounds_mode = XR_SPATIAL_CONTAINER_BOUNDS_MODE_MAX_ENUM_EXT;
 	};
 
 	static OpenXRSpatialContainerExtension *get_singleton();
@@ -80,7 +80,7 @@ public:
 	bool request_spatial_container_bounds_mode(OpenXRSpatialContainerState::BoundsMode p_mode);
 	bool request_spatial_container_visible(bool p_visible);
 
-	XrResult locate_spatial_container_views(XrView *p_views, bool &r_view_pose_valid, bool &r_should_submit_layers);
+	XrResult locate_spatial_container_views(XrView *p_views, bool &r_view_pose_valid);
 
 protected:
 	static void _bind_methods();

@@ -125,6 +125,9 @@ void SpinBox::_update_text(bool p_only_update_if_value_changed) {
 			const Variant current_value = value;
 			bool error = false;
 			value = _get_xl_format().sprintf(Span(&current_value, 1), &error);
+			if (!error && !plural_format.is_empty() && (plural_format.contains("%s") != use_default_format)) {
+				error = true;
+			}
 			if (error) {
 				line_edit->set_text_with_selection(RTR("<Invalid>"));
 				return;
@@ -268,11 +271,18 @@ void SpinBox::_release_mouse_from_drag_mode() {
 		Input::get_singleton()->set_mouse_mode(Input::MouseMode::MOUSE_MODE_HIDDEN);
 		warp_mouse(drag.capture_pos);
 		Input::get_singleton()->set_mouse_mode(Input::MouseMode::MOUSE_MODE_VISIBLE);
+		play_theme_sound(theme_cache.drag_ended_sound);
 	}
 }
 
 void SpinBox::_arrow_clicked(bool p_up) {
 	double arrow_step = get_custom_arrow_step() != 0.0 ? get_custom_arrow_step() : get_step();
+
+	// Play the sound before setting the value, so that the "disabled" sound
+	// does not play when the value was changed one last time before reaching the limit.
+	const bool disabled = !is_editable() || (p_up && state_cache.up_button_disabled) || (!p_up && state_cache.down_button_disabled);
+	play_theme_sound(disabled ? theme_cache.pressed_disabled_sound : theme_cache.pressed_sound);
+
 	if (custom_arrow_round) {
 		// Arrow button is being pressed, snap the value to next `arrow_step`.
 		// `arrow_step` should be a multiple of `step`, otherwise it may not be able to increase/decrease the value.
@@ -343,17 +353,21 @@ void SpinBox::gui_input(const Ref<InputEvent> &p_event) {
 			case MouseButton::RIGHT: {
 				line_edit->grab_focus(true);
 				if (mouse_on_up_button || mouse_on_down_button) {
+					const bool disabled = mouse_on_up_button ? state_cache.up_button_disabled : state_cache.down_button_disabled;
+					play_theme_sound(disabled ? theme_cache.pressed_disabled_sound : theme_cache.pressed_sound);
 					set_value(mouse_on_up_button ? get_max() : get_min());
 				}
 			} break;
 			case MouseButton::WHEEL_UP: {
 				if (line_edit->is_editing()) {
+					play_theme_sound(state_cache.up_button_disabled ? theme_cache.pressed_disabled_sound : theme_cache.pressed_sound);
 					set_value(get_value() + step * mb->get_factor());
 					accept_event();
 				}
 			} break;
 			case MouseButton::WHEEL_DOWN: {
 				if (line_edit->is_editing()) {
+					play_theme_sound(state_cache.down_button_disabled ? theme_cache.pressed_disabled_sound : theme_cache.pressed_sound);
 					set_value(get_value() - step * mb->get_factor());
 					accept_event();
 				}
@@ -399,6 +413,7 @@ void SpinBox::gui_input(const Ref<InputEvent> &p_event) {
 			drag.enabled = true;
 			drag.base_val = get_value();
 			drag.diff_y = 0;
+			play_theme_sound(theme_cache.drag_started_sound);
 		}
 	}
 }
@@ -767,6 +782,8 @@ PackedStringArray SpinBox::get_configuration_warnings() const {
 		}
 		if (format.is_empty()) {
 			warnings.push_back(RTR("The format property is empty, while plural_format was specified. It will have no effect."));
+		} else if (use_default_format != plural_format.contains("%s")) {
+			warnings.push_back(RTR("The format and plural_format properties have inconsistent %s placeholder usage."));
 		}
 	}
 	return warnings;
@@ -874,6 +891,12 @@ void SpinBox::_bind_methods() {
 
 	BIND_THEME_ITEM_CUSTOM(Theme::DATA_TYPE_STYLEBOX, SpinBox, field_and_buttons_separator, "field_and_buttons_separator");
 	BIND_THEME_ITEM_CUSTOM(Theme::DATA_TYPE_STYLEBOX, SpinBox, up_down_buttons_separator, "up_down_buttons_separator");
+
+	BIND_THEME_ITEM(Theme::DATA_TYPE_SOUND, SpinBox, focus_sound);
+	BIND_THEME_ITEM(Theme::DATA_TYPE_SOUND, SpinBox, pressed_sound);
+	BIND_THEME_ITEM(Theme::DATA_TYPE_SOUND, SpinBox, pressed_disabled_sound);
+	BIND_THEME_ITEM_EXT(Theme::DATA_TYPE_SOUND, SpinBox, drag_started_sound, "drag_started_sound", "Slider");
+	BIND_THEME_ITEM_EXT(Theme::DATA_TYPE_SOUND, SpinBox, drag_ended_sound, "drag_ended_sound", "Slider");
 
 	ADD_CLASS_DEPENDENCY("LineEdit");
 }

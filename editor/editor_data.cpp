@@ -37,6 +37,8 @@
 #include "core/object/callable_mp.h"
 #include "core/object/class_db.h"
 #include "core/os/time.h"
+#include "editor/docks/inspector_dock.h"
+#include "editor/docks/scene_tree_dock.h"
 #include "editor/editor_node.h"
 #include "editor/editor_undo_redo_manager.h"
 #include "editor/inspector/editor_context_menu_plugin.h"
@@ -257,22 +259,10 @@ EditorSelectionHistory::EditorSelectionHistory() {
 
 ////////////////////////////////////////////////////////////
 
-EditorPlugin *EditorData::get_handling_main_editor(Object *p_object) {
-	// We need to iterate backwards so that we can check user-created plugins first.
-	// Otherwise, it would not be possible for plugins to handle CanvasItem and Spatial nodes.
-	for (int i = editor_plugins.size() - 1; i > -1; i--) {
-		if (editor_plugins[i]->has_main_screen() && editor_plugins[i]->handles(p_object)) {
-			return editor_plugins[i];
-		}
-	}
-
-	return nullptr;
-}
-
 Vector<EditorPlugin *> EditorData::get_handling_sub_editors(Object *p_object) {
 	Vector<EditorPlugin *> sub_plugins;
 	for (EditorPlugin *plugin : editor_plugins) {
-		if (!plugin->has_main_screen() && plugin->handles(p_object)) {
+		if (plugin->handles(p_object)) {
 			sub_plugins.push_back(plugin);
 		}
 	}
@@ -701,6 +691,8 @@ void EditorData::remove_scene(int p_idx) {
 		undo_redo_manager->discard_history(edited_scene[p_idx].history_id);
 	}
 	edited_scene.remove_at(p_idx);
+	// Removing scene also removes its editing history, which might invalidate the edited object.
+	InspectorDock::get_inspector_singleton()->cleanup_object();
 }
 
 void EditorData::set_scene_root(int p_idx, Node *p_root) {
@@ -806,6 +798,9 @@ bool EditorData::reload_scene_from_memory(int p_idx, bool p_mark_unsaved) {
 			new_selection.push_back(new_node);
 		}
 	}
+
+	// Make sure no editor is editing a node when the scene is freed.
+	EditorNode::get_singleton()->hide_unused_editors(SceneTreeDock::get_singleton());
 
 	new_scene->set_scene_file_path(edited_scene[p_idx].root->get_scene_file_path());
 	Node *old_root = edited_scene[p_idx].root;
